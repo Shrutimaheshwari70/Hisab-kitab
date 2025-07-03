@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Hisaab - Hisab-kitab App</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Background Animation */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+          radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+        z-index: -1;
+        animation: float 20s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(1deg); }
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Navigation Styles */
+      nav {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 1rem 2.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      nav h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      nav h3::before {
+        content: '📊';
+        font-size: 1.5rem;
+      }
+
+      .navlinks {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .navlinks a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .navlinks a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .navlinks a:hover::before {
+        left: 100%;
+      }
+
+      .navlinks a:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Main Content */
+      .hisaabs {
+        padding: 2.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Header Section */
+      .hisaab-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hisaab-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.8s;
+      }
+
+      .hisaab-header:hover::before {
+        left: 100%;
+      }
+
+      .hisaab-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1rem;
+        line-height: 1.3;
+      }
+
+      .filename-highlight {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        text-shadow: none;
+        position: relative;
+        display: inline-block;
+      }
+
+      .filename-highlight::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 2px;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from { box-shadow: 0 0 5px #ffd700; }
+        to { box-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+      }
+
+      .hisaab-meta {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+      }
+
+      /* Content Section */
+      .hisaab-content {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .hisaab-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 1s;
+      }
+
+      .hisaab-content:hover::before {
+        left: 100%;
+      }
+
+      .content-label {
+        color: #667eea;
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .content-text {
+        font-size: 1.2rem;
+        line-height: 1.8;
+        color: #333;
+        font-weight: 500;
+        white-space: pre-wrap;
+        background: rgba(102, 126, 234, 0.05);
+        padding: 2rem;
+        border-radius: 15px;
+        border-left: 4px solid #667eea;
+        font-family: 'Courier New', monospace;
+        min-height: 200px;
+      }
+
+      /* Action Section */
+      .hisaab-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .action-btn {
+        padding: 1rem 2.5rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+
+      .action-btn:hover::before {
+        left: 100%;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-3px);
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-btn:active {
+        transform: translateY(-1px);
+      }
+
+      /* Floating Icons */
+      .floating-icon {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 2.5rem;
+        animation: floatIcon 10s ease-in-out infinite;
+      }
+
+      .floating-icon:nth-child(1) {
+        top: 10%;
+        left: 5%;
+        animation-delay: 0s;
+      }
+
+      .floating-icon:nth-child(2) {
+        top: 60%;
+        right: 8%;
+        animation-delay: 4s;
+      }
+
+      .floating-icon:nth-child(3) {
+        bottom: 10%;
+        left: 10%;
+        animation-delay: 8s;
+      }
+
+      @keyframes floatIcon {
+        0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+        50% { transform: translateY(-40px) rotate(15deg); opacity: 0.4; }
+      }
+
+      /* Word Count */
+      .word-count {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        nav {
+          padding: 1rem;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .navlinks {
+          gap: 1rem;
+        }
+
+        .hisaabs {
+          padding: 1.5rem;
+        }
+
+        .hisaab-header,
+        .hisaab-content {
+          padding: 2rem;
+        }
+
+        .hisaab-title {
+          font-size: 2rem;
+        }
+
+        .content-text {
+          font-size: 1.1rem;
+          padding: 1.5rem;
+        }
+
+        .hisaab-actions {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .action-btn {
+          width: 100%;
+          max-width: 300px;
+          justify-content: center;
+        }
+
+        .hisaab-meta {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+
+      /* Loading Animation */
+      .loading {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      /* Print Styles */
+      @media print {
+        body::before,
+        .floating-icon,
+        nav,
+        .hisaab-actions {
+          display: none !important;
+        }
+        
+        body {
+          background: white !important;
+        }
+        
+        .hisaab-header,
+        .hisaab-content {
+          background: white !important;
+          box-shadow: none !important;
+          border: 1px solid #ddd !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="w-full h-screen font-['Helvetica']">
+      <!-- Floating Background Icons -->
+      <div class="floating-icon">📄</div>
+      <div class="floating-icon">💰</div>
+      <div class="floating-icon">📊</div>
+
+      <nav class="flex justify-between items-center">
+        <h3 class="tracking-tight">Hisab kitab</h3>
+        <div class="navlinks flex">
+          <a class="tracking-tight" href="/">Home</a>
+          <a class="tracking-tight" href="/create">Create New Hisaab</a>
+        </div>
+      </nav>
+      
+      <div class="hisaabs">
+        <!-- Header Section -->
+        <div class="hisaab-header loading">
+          <h3 class="hisaab-title font-medium tracking-tight">
+            Hisaab of
+            <span class="filename-highlight"><%= filename.split(".")[0] %></span>
+          </h3>
+          <div class="hisaab-meta">
+            <div class="meta-item">
+              <i class="ri-calendar-line"></i>
+              <span id="currentDate"></span>
+            </div>
+            <div class="meta-item">
+              <i class="ri-file-text-line"></i>
+              <span>Financial Record</span>
+            </div>
+            <div class="meta-item">
+              <i class="ri-time-line"></i>
+              <span id="readTime">2 min read</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="hisaab-content loading">
+          <div class="content-label">
+            <i class="ri-file-list-3-line"></i>
+            Hisaab Details
+          </div>
+          <div class="word-count" id="wordCount">0 words</div>
+          <div class="content-text" id="hisaabContent"><%= filedata %></div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="hisaab-actions loading">
+          <a href="/edit/<%= filename %>" class="action-btn btn-primary">
+            <i class="ri-edit-line"></i>
+            Edit This Hisaab
+          </a>
+          <a href="/" class="action-btn btn-secondary">
+            <i class="ri-arrow-left-line"></i>
+            Back to Home
+          </a>
+          <button onclick="window.print()" class="action-btn btn-secondary">
+            <i class="ri-printer-line"></i>
+            Print
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // GSAP Animations
+      gsap.registerPlugin();
+
+      // Initial page load animation
+      gsap.timeline()
+        .from("nav", {
+          y: -100,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out"
+        })
+        .from(".floating-icon", {
+          scale: 0,
+          rotation: 180,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.3,
+          ease: "back.out(1.7)"
+        }, "-=0.5")
+        .to(".loading", {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.3,
+          ease: "power2.out"
+        }, "-=0.3");
+
+      // Content reveal animation
+      gsap.from(".content-text", {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        ease: "power2.out",
+        delay: 1
+      });
+
+      // Button hover animations
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+          gsap.to(btn, {
+            scale: 1.05,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          gsap.to(btn, {
+            scale: 1,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+        });
+
+        btn.addEventListener('click', (e) => {
+          gsap.timeline()
+            .to(btn, {
+              scale: 0.95,
+              duration: 0.1,
+              ease: "power2.out"
+            })
+            .to(btn, {
+              scale: 1.05,
+              duration: 0.2,
+              ease: "back.out(1.7)"
+            })
+            .to(btn, {
+              scale: 1,
+              duration: 0.1,
+              ease: "power2.out"
+            });
+        });
+      });
+
+      // Floating icons animation
+      gsap.to(".floating-icon", {
+        y: -40,
+        rotation: 15,
+        duration: 5,
+        ease: "power1.inOut",
+        yoyo: true,
+        repeat: -1,
+        stagger: 2
+      });
+
+      // Content animations on scroll
+      gsap.registerPlugin(ScrollTrigger);
+      
+      gsap.from(".hisaab-content", {
+        scrollTrigger: {
+          trigger: ".hisaab-content",
+          start: "top 80%",
+          end: "bottom 20%",
+          toggleActions: "play none none reverse"
+        },
+        scale: 0.9,
+        opacity: 0.5,
+        duration: 0.8,
+        ease: "power2.out"
+      });
+
+      // Utility Functions
+      function updateCurrentDate() {
+        const now = new Date();
+        const options = { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        };
+        document.getElementById('currentDate').textContent = 
+          now.toLocaleDateString('en-US', options);
+      }
+
+      function updateWordCount() {
+        const content = document.getElementById('hisaabContent').textContent;
+        const words = content.trim().split(/\s+/).filter(word => word.length > 0);
+        const wordCount = words.length;
+        
+        document.getElementById('wordCount').textContent = `${wordCount} words`;
+        
+        // Update read time (average 200 words per minute)
+        const readTime = Math.max(1, Math.ceil(wordCount / 200));
+        document.getElementById('readTime').textContent = `${readTime} min read`;
+      }
+
+      function formatContent() {
+        const contentElement = document.getElementById('hisaabContent');
+        let content = contentElement.textContent;
+        
+        // Add some basic formatting for numbers and currency
+        content = content.replace(/₹(\d+)/g, '<span style="color: #27ae60; font-weight: bold;">₹$1</span>');
+        content = content.replace(/(\d+)/g, '<span style="color: #3498db; font-weight: 600;">$1</span>');
+        
+        contentElement.innerHTML = content;
+      }
+
+      // Copy to clipboard functionality
+      function copyToClipboard() {
+        const content = document.getElementById('hisaabContent').textContent;
+        navigator.clipboard.writeText(content).then(() => {
+          // Show success message
+          const toast = document.createElement('div');
+          toast.innerHTML = `
+            <div style="position: fixed; top: 20px; right: 20px; background: #27ae60; color: white; padding: 1rem 2rem; border-radius: 25px; z-index: 1000; font-weight: 600;">
+              <i class="ri-check-line"></i> Copied to clipboard!
+            </div>
+          `;
+          document.body.appendChild(toast);
+          
+          setTimeout(() => {
+            gsap.to(toast, { 
+              opacity: 0, 
+              duration: 0.5, 
+              onComplete: () => toast.remove() 
+            });
+          }, 2000);
+        });
+      }
+
+      // Add copy button
+      const copyBtn = document.createElement('button');
+      copyBtn.innerHTML = '<i class="ri-file-copy-line"></i> Copy';
+      copyBtn.className = 'action-btn btn-secondary';
+      copyBtn.onclick = copyToClipboard;
+      document.querySelector('.hisaab-actions').appendChild(copyBtn);
+
+      // Initialize functions
+      updateCurrentDate();
+      updateWordCount();
+      formatContent();
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Ctrl+E to edit
+        if (e.ctrlKey && e.key === 'e') {
+          e.preventDefault();
+          window.location.href = '/edit/<%= filename %>';
+        }
+        
+        // Ctrl+P to print
+        if (e.ctrlKey && e.key === 'p') {
+          e.preventDefault();
+          window.print();
+        }
+        
+        // Ctrl+C to copy (when not selecting text)
+        if (e.ctrlKey && e.key === 'c' && window.getSelection().toString() === '') {
+          e.preventDefault();
+          copyToClipboard();
+        }
+      });
+
+      // Show keyboard shortcuts hint
+      setTimeout(() => {
+        const hint = document.createElement('div');
+        hint.innerHTML = `
+          <div style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 1rem; border-radius: 10px; font-size: 0.9rem; z-index: 1000;">
+            <div><kbd>Ctrl+E</kbd> to edit</div>
+            <div><kbd>Ctrl+P</kbd> to print</div>
+            <div><kbd>Ctrl+C</kbd> to copy</div>
+          </div>
+        `;
+        document.body.appendChild(hint);
+        
+        setTimeout(() => {
+          gsap.to(hint, { 
+            opacity: 0, 
+            duration: 0.5, 
+            onComplete: () => hint.remove() 
+          });
+        }, 4000);
+      }, 2000);
+    </script>
+  </body>
+</html>
