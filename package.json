@@ -10,7 +10,20 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "body-parser": "^2.2.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khushi0804/hisaab-kitaab.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/khushi0804/hisaab-kitaab/issues"
+  },
+  "homepage": "https://github.com/khushi0804/hisaab-kitaab#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
   }
 }
